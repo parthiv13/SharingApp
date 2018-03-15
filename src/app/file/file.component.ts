@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 import { File } from '../file';
 import { FileService } from '../file.service';
+import { FileTypeService } from '../file-type.service';
 
 @Component({
   selector: 'app-file',
@@ -9,17 +11,24 @@ import { FileService } from '../file.service';
 })
 export class FileComponent implements OnInit {
   files: File[];
-  constructor(private fileService: FileService) { }
+  fileUrl;
+  subscription: Subscription;
+  constructor(private fileService: FileService, private fileTypeService: FileTypeService) {
+    this.subscription = fileTypeService.sentFileType$.subscribe(
+      fileurl => {
+        this.fileUrl = fileurl;
+        this.getFiles();
+        console.log('fileComponenet response:' + fileurl);
+      }
+    );
+  }
 
   getFiles(): void {
-    this.fileService.getFiles().subscribe(files => this.files = files);
+    this.fileService.getFiles(this.fileUrl).subscribe(files => this.files = files);
   }
-  getAudio(): void {
-    this.fileService.getAudio().subscribe(files => this.files = files);
+  download(): void {
+    
   }
-
-  ngOnInit() {
-    this.getFiles();
-  }
+  ngOnInit() {  }
 
 }
